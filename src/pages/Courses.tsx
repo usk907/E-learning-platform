@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Filter, Clock, Users, Star } from "lucide-react";
+import { Search, Filter, Clock, Users, Star, BookOpen } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface Course {
