@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Bell, Search, User, Sun, Moon, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/use-theme";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,10 +21,14 @@ const Header = () => {
   const navigate = useNavigate();
   
   return (
-    <header className="bg-background border-b border-border h-16 flex items-center justify-between px-4 md:px-6">
-      {/* Search bar */}
-      <div className="w-full max-w-md">
-        <div className="relative">
+    <header className={`border-b border-border h-16 flex items-center justify-between px-4 md:px-6 ${
+      theme === 'dark' ? 'bg-background text-foreground' : 'bg-background text-foreground'
+    }`}>
+      {/* Sidebar toggle and search section */}
+      <div className="flex items-center w-full max-w-md gap-2">
+        <SidebarTrigger className="mr-2" />
+        
+        <div className="relative w-full">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -62,7 +67,7 @@ const Header = () => {
               {[1, 2, 3].map((i) => (
                 <DropdownMenuItem key={i} className="p-4 cursor-pointer">
                   <div>
-                    <p className="font-medium">New quiz available</p>
+                    <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>New quiz available</p>
                     <p className="text-sm text-muted-foreground">
                       A new quiz has been added to the Machine Learning course
                     </p>
@@ -95,7 +100,7 @@ const Header = () => {
                 <User className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <p className="font-medium">John Doe</p>
+                <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>John Doe</p>
                 <p className="text-xs text-muted-foreground">john.doe@example.com</p>
               </div>
             </div>

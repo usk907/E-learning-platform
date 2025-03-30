@@ -25,10 +25,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Update localStorage
     localStorage.setItem("theme", theme);
     
-    // Update document class
+    // Update document class for tailwind dark mode
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
+    
+    // Add a data attribute for additional styling hooks
+    document.body.setAttribute('data-theme', theme);
   }, [theme]);
 
   return (

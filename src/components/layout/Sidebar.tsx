@@ -2,11 +2,27 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Home, BookOpen, MessageSquare, Calendar, BarChart, User, Settings, Menu, X } from "lucide-react";
+import { 
+  GraduationCap, Home, BookOpen, MessageSquare, 
+  Calendar, BarChart, User, Settings, PanelLeftClose, PanelLeft
+} from "lucide-react";
+import {
+  Sidebar as SidebarComponent,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarFooter,
+  SidebarProvider,
+  SidebarTrigger
+} from "@/components/ui/sidebar";
+import { useTheme } from "@/hooks/use-theme";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
+  const { theme } = useTheme();
   
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -18,88 +34,75 @@ const Sidebar = () => {
     { name: "Admin", href: "/admin", icon: Settings },
   ];
   
-  // Function to toggle sidebar on mobile
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
   
   return (
-    <>
-      {/* Mobile toggle button - visible only on small screens */}
-      <button
-        type="button"
-        className="md:hidden fixed top-4 left-4 z-50 rounded-md p-2 text-gray-400 hover:bg-gray-100 focus:outline-none"
-        onClick={toggleSidebar}
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-      
-      {/* Sidebar */}
-      <aside
-        className={`bg-white border-r border-border overflow-y-auto flex-shrink-0 
-          ${isOpen ? "w-64" : "w-0"} md:w-64 transition-all duration-300 fixed md:relative 
-          h-full z-40 shadow-sm`}
-      >
-        <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="h-16 flex items-center px-4">
-            <NavLink to="/" className="flex items-center gap-2">
-              <GraduationCap className="h-8 w-8 text-brand-primary" />
-              <span className="text-xl font-bold">LearnLab</span>
-            </NavLink>
-          </div>
-          
-          {/* Navigation */}
-          <nav className="flex-1 px-2 py-4 space-y-1">
+    <SidebarProvider defaultOpen={isOpen} onOpenChange={setIsOpen}>
+      <SidebarComponent>
+        <SidebarHeader className="p-4">
+          <NavLink to="/" className="flex items-center gap-2">
+            <GraduationCap className="h-8 w-8 text-brand-primary" />
+            <span className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>LearnLab</span>
+          </NavLink>
+        </SidebarHeader>
+        
+        <SidebarContent>
+          <SidebarMenu>
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
               return (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-brand-primary/10 text-brand-primary"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className={`mr-3 h-5 w-5 ${isActive ? "text-brand-primary" : "text-gray-500"}`} />
-                  {item.name}
-                </NavLink>
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton 
+                    isActive={isActive}
+                    tooltip={item.name}
+                    asChild
+                  >
+                    <NavLink
+                      to={item.href}
+                      className={`flex items-center gap-2 w-full ${
+                        theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+                      }`}
+                    >
+                      <item.icon className={`h-5 w-5 ${
+                        isActive 
+                          ? 'text-brand-primary' 
+                          : theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`} />
+                      <span>{item.name}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               );
             })}
-          </nav>
-          
-          {/* User section */}
-          <div className="p-4 border-t border-border">
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <User className="h-5 w-5 text-gray-500" />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium">Demo User</p>
-                <p className="text-xs text-gray-500">student@example.com</p>
-              </div>
+          </SidebarMenu>
+        </SidebarContent>
+        
+        <SidebarFooter className="p-4 border-t border-border">
+          <div className="flex items-center">
+            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+              <User className="h-5 w-5 text-gray-500" />
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full mt-4 text-brand-primary border-brand-primary/20"
-            >
-              Sign Out
-            </Button>
+            <div className="ml-3">
+              <p className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Demo User</p>
+              <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>student@example.com</p>
+            </div>
           </div>
-        </div>
-      </aside>
-      
-      {/* Overlay for mobile - closes sidebar when clicking outside */}
-      {isOpen && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/20 z-30"
-          onClick={toggleSidebar}
-        ></div>
-      )}
-    </>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={`w-full mt-4 ${
+              theme === 'dark' 
+                ? 'text-white border-white/20' 
+                : 'text-brand-primary border-brand-primary/20'
+            }`}
+          >
+            Sign Out
+          </Button>
+        </SidebarFooter>
+      </SidebarComponent>
+    </SidebarProvider>
   );
 };
 
