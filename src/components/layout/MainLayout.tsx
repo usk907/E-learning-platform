@@ -4,7 +4,6 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 const MainLayout = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
