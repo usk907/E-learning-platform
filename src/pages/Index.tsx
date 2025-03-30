@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, BookOpen, Users, MessageSquare, Calendar, PieChart } from "lucide-react";
+import { GraduationCap, BookOpen, Users, MessageSquare, Calendar, PieChart, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import LoginModal from "@/components/auth/LoginModal";
 import FeaturedCourses from "@/components/courses/FeaturedCourses";
@@ -37,6 +37,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/50">
+      {/* Top right login button */}
+      <div className="absolute top-4 right-4 z-10">
+        <Button 
+          onClick={() => setIsLoginModalOpen(true)} 
+          className="flex items-center gap-2"
+        >
+          <LogIn className="h-4 w-4" />
+          <span>Login</span>
+        </Button>
+      </div>
+      
       <HeroSection 
         onLoginClick={() => setIsLoginModalOpen(true)}
         onExploreClick={() => navigate('/courses')}

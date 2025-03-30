@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Bell, Search, User, Sun, Moon, Settings, LogOut } from "lucide-react";
+import { useState, useRef } from "react";
+import { Bell, Search, User, Sun, Moon, Settings, LogOut, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,11 +14,45 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/use-theme";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [userImage, setUserImage] = useState<string | null>(null);
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setUserImage(result);
+        localStorage.setItem('userProfileImage', result);
+        toast({
+          title: "Profile Updated",
+          description: "Your profile image has been updated successfully.",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Load profile image from localStorage on component mount
+  useState(() => {
+    const savedImage = localStorage.getItem('userProfileImage');
+    if (savedImage) {
+      setUserImage(savedImage);
+    }
+  });
   
   return (
     <header className={`border-b border-border h-16 flex items-center justify-between px-4 md:px-6 ${
@@ -85,26 +119,42 @@ const Header = () => {
           </DropdownMenuContent>
         </DropdownMenu>
         
-        {/* Profile dropdown - Enhanced */}
+        {/* Profile dropdown - Enhanced with avatar */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
-              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                <User className="h-4 w-4" />
-              </div>
+              <Avatar className="h-8 w-8">
+                {userImage ? (
+                  <AvatarImage src={userImage} alt="User profile" />
+                ) : (
+                  <AvatarFallback>
+                    <User className="h-4 w-4" />
+                  </AvatarFallback>
+                )}
+              </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="flex items-center justify-start gap-2 p-2">
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                <User className="h-5 w-5" />
-              </div>
+              <Avatar className="h-10 w-10 cursor-pointer" onClick={handleProfileImageClick}>
+                {userImage ? (
+                  <AvatarImage src={userImage} alt="User profile" />
+                ) : (
+                  <AvatarFallback>
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                )}
+              </Avatar>
               <div className="flex flex-col">
                 <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>John Doe</p>
                 <p className="text-xs text-muted-foreground">john.doe@example.com</p>
               </div>
             </div>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleProfileImageClick} className="cursor-pointer">
+              <Upload className="mr-2 h-4 w-4" />
+              <span>Change Profile Picture</span>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate("/profile")}>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
@@ -121,6 +171,15 @@ const Header = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      
+      {/* Hidden file input for image upload */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileChange}
+      />
     </header>
   );
 };
