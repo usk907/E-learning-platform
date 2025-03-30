@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,6 +114,10 @@ const Courses = () => {
   
   const categories = ["Computer Science", "Web Development", "Data Science", "Mobile Development", "Blockchain"];
   
+  const handleCourseClick = (courseId: number) => {
+    navigate(`/courses/${courseId}`);
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -172,7 +175,11 @@ const Courses = () => {
         <TabsContent value="all" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses(allCourses).map((course) => (
-              <Card key={course.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+              <Card 
+                key={course.id} 
+                className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => handleCourseClick(course.id)}
+              >
                 <div className="h-48 overflow-hidden">
                   <img
                     src={course.image}
@@ -221,7 +228,10 @@ const Courses = () => {
                 <CardFooter>
                   <Button 
                     className="w-full bg-brand-secondary hover:bg-brand-secondary/90"
-                    onClick={() => navigate(`/courses/${course.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/courses/${course.id}`);
+                    }}
                   >
                     {course.progress !== undefined ? "Continue Learning" : "Enroll Now"}
                   </Button>
@@ -235,7 +245,11 @@ const Courses = () => {
           {filteredCourses(myEnrolledCourses).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses(myEnrolledCourses).map((course) => (
-                <Card key={course.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+                <Card 
+                  key={course.id} 
+                  className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => handleCourseClick(course.id)}
+                >
                   <div className="h-48 overflow-hidden">
                     <img
                       src={course.image}
@@ -282,7 +296,10 @@ const Courses = () => {
                   <CardFooter>
                     <Button 
                       className="w-full bg-brand-secondary hover:bg-brand-secondary/90"
-                      onClick={() => navigate(`/courses/${course.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/courses/${course.id}`);
+                      }}
                     >
                       Continue Learning
                     </Button>
