@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,99 +8,32 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Filter, Clock, Users, Star, BookOpen } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-
-interface Course {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  instructor: string;
-  duration: string;
-  enrolled: number;
-  rating: number;
-  category: string;
-  progress?: number;
-}
+import { useToast } from "@/hooks/use-toast";
+import { Course, Enrollment, getCurrentUser, getCourses, getEnrollmentsByUserId, createEnrollment } from "@/utils/localDatabase";
 
 const Courses = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [myEnrollments, setMyEnrollments] = useState<Enrollment[]>([]);
+  const { toast } = useToast();
   
-  const allCourses: Course[] = [
-    {
-      id: 1,
-      title: "Introduction to Machine Learning",
-      description: "Learn the fundamentals of machine learning algorithms and applications",
-      image: "/placeholder.svg",
-      instructor: "Dr. Sarah Chen",
-      duration: "8 weeks",
-      enrolled: 1240,
-      rating: 4.8,
-      category: "Computer Science",
-      progress: 68
-    },
-    {
-      id: 2,
-      title: "Advanced Web Development",
-      description: "Master modern web technologies like React, Node.js and GraphQL",
-      image: "/placeholder.svg",
-      instructor: "Mark Johnson",
-      duration: "10 weeks",
-      enrolled: 890,
-      rating: 4.7,
-      category: "Web Development",
-      progress: 42
-    },
-    {
-      id: 3,
-      title: "Data Science Fundamentals",
-      description: "Explore data analysis, visualization and statistical methods",
-      image: "/placeholder.svg",
-      instructor: "Dr. Michael Rodriguez",
-      duration: "12 weeks",
-      enrolled: 1650,
-      rating: 4.9,
-      category: "Data Science",
-      progress: 89
-    },
-    {
-      id: 4,
-      title: "Mobile App Development with Flutter",
-      description: "Build cross-platform mobile applications with Flutter framework",
-      image: "/placeholder.svg",
-      instructor: "Jessica Williams",
-      duration: "8 weeks",
-      enrolled: 760,
-      rating: 4.6,
-      category: "Mobile Development"
-    },
-    {
-      id: 5,
-      title: "Artificial Intelligence Ethics",
-      description: "Explore ethical considerations and implications of AI systems",
-      image: "/placeholder.svg",
-      instructor: "Dr. Robert Chen",
-      duration: "6 weeks",
-      enrolled: 520,
-      rating: 4.5,
-      category: "Computer Science"
-    },
-    {
-      id: 6,
-      title: "Blockchain Technology",
-      description: "Understand blockchain principles and smart contract development",
-      image: "/placeholder.svg",
-      instructor: "Michael Anderson",
-      duration: "8 weeks",
-      enrolled: 680,
-      rating: 4.4,
-      category: "Blockchain"
+  // Load courses and enrollments on component mount
+  useEffect(() => {
+    // Get all courses
+    const courses = getCourses();
+    setAllCourses(courses);
+    
+    // Get current user's enrollments
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      const enrollments = getEnrollmentsByUserId(currentUser.id);
+      setMyEnrollments(enrollments);
     }
-  ];
+  }, []);
   
-  const myEnrolledCourses = allCourses.filter(course => course.progress !== undefined);
-  
+  // Filter courses based on search query and category
   const filteredCourses = (courses: Course[]) => {
     return courses.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -112,9 +46,53 @@ const Courses = () => {
     });
   };
   
-  const categories = ["Computer Science", "Web Development", "Data Science", "Mobile Development", "Blockchain"];
+  // Get my enrolled courses with progress information
+  const getMyEnrolledCourses = () => {
+    return allCourses.filter(course => 
+      myEnrollments.some(enrollment => enrollment.courseId === course.id)
+    ).map(course => {
+      const enrollment = myEnrollments.find(e => e.courseId === course.id);
+      return {
+        ...course,
+        progress: enrollment?.progress || 0
+      };
+    });
+  };
   
-  const handleCourseClick = (courseId: number) => {
+  const myEnrolledCourses = getMyEnrolledCourses();
+  
+  // Extract unique categories from courses
+  const categories = [...new Set(allCourses.map(course => course.category))];
+  
+  const handleCourseClick = (courseId: string) => {
+    navigate(`/courses/${courseId}`);
+  };
+  
+  const handleEnrollClick = (e: React.MouseEvent, courseId: string) => {
+    e.stopPropagation();
+    
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to enroll in courses",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Enroll the user in the course
+    createEnrollment(currentUser.id, courseId);
+    
+    // Update the enrollments list
+    const enrollments = getEnrollmentsByUserId(currentUser.id);
+    setMyEnrollments(enrollments);
+    
+    toast({
+      title: "Enrollment successful",
+      description: "You have been enrolled in the course",
+    });
+    
     navigate(`/courses/${courseId}`);
   };
   
@@ -215,13 +193,18 @@ const Courses = () => {
                     </div>
                   </div>
                   
-                  {course.progress !== undefined && (
+                  {myEnrollments.some(e => e.courseId === course.id) && (
                     <div className="mt-4">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">Progress</span>
-                        <span className="font-medium">{course.progress}%</span>
+                        <span className="font-medium">
+                          {myEnrollments.find(e => e.courseId === course.id)?.progress || 0}%
+                        </span>
                       </div>
-                      <Progress value={course.progress} className="h-1.5" />
+                      <Progress 
+                        value={myEnrollments.find(e => e.courseId === course.id)?.progress || 0} 
+                        className="h-1.5" 
+                      />
                     </div>
                   )}
                 </CardContent>
@@ -230,10 +213,14 @@ const Courses = () => {
                     className="w-full bg-brand-secondary hover:bg-brand-secondary/90"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/courses/${course.id}`);
+                      myEnrollments.some(enrollment => enrollment.courseId === course.id)
+                        ? navigate(`/courses/${course.id}`)
+                        : handleEnrollClick(e, course.id);
                     }}
                   >
-                    {course.progress !== undefined ? "Continue Learning" : "Enroll Now"}
+                    {myEnrollments.some(enrollment => enrollment.courseId === course.id) 
+                      ? "Continue Learning" 
+                      : "Enroll Now"}
                   </Button>
                 </CardFooter>
               </Card>

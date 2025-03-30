@@ -1,46 +1,30 @@
 
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Users, Star } from "lucide-react";
-
-const courses = [
-  {
-    id: 1,
-    title: "Introduction to Machine Learning",
-    description: "Learn the fundamentals of machine learning algorithms and applications",
-    image: "/placeholder.svg",
-    instructor: "Dr. Sarah Chen",
-    duration: "8 weeks",
-    enrolled: 1240,
-    rating: 4.8,
-    category: "Computer Science"
-  },
-  {
-    id: 2,
-    title: "Advanced Web Development",
-    description: "Master modern web technologies like React, Node.js and GraphQL",
-    image: "/placeholder.svg",
-    instructor: "Mark Johnson",
-    duration: "10 weeks",
-    enrolled: 890,
-    rating: 4.7,
-    category: "Web Development"
-  },
-  {
-    id: 3,
-    title: "Data Science Fundamentals",
-    description: "Explore data analysis, visualization and statistical methods",
-    image: "/placeholder.svg",
-    instructor: "Dr. Michael Rodriguez",
-    duration: "12 weeks",
-    enrolled: 1650,
-    rating: 4.9,
-    category: "Data Science"
-  }
-];
+import { Course, getCourses } from "@/utils/localDatabase";
 
 const FeaturedCourses = () => {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get all courses and take the top 3 with highest ratings
+    const allCourses = getCourses();
+    const featuredCourses = [...allCourses]
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 3);
+    
+    setCourses(featuredCourses);
+  }, []);
+
+  const handleViewCourse = (courseId: string) => {
+    navigate(`/courses/${courseId}`);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {courses.map((course) => (
@@ -81,7 +65,10 @@ const FeaturedCourses = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full bg-brand-secondary hover:bg-brand-secondary/90">
+            <Button 
+              className="w-full bg-brand-secondary hover:bg-brand-secondary/90"
+              onClick={() => handleViewCourse(course.id)}
+            >
               View Course
             </Button>
           </CardFooter>

@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import MainLayout from "./components/layout/MainLayout";
 import { ThemeProvider } from "./hooks/use-theme";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -24,27 +25,29 @@ const App = () => (
     <ThemeProvider>
       <TooltipProvider>
         <SidebarProvider defaultOpen={true}>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              
-              {/* Protected Routes */}
-              <Route path="/" element={<MainLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/courses/:id" element={<CourseDetail />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/attendance" element={<Attendance />} />
-                <Route path="/profile" element={<Profile />} />
-              </Route>
-              
-              {/* 404 route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                
+                {/* Protected Routes */}
+                <Route path="/" element={<MainLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/courses" element={<Courses />} />
+                  <Route path="/courses/:id" element={<CourseDetail />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/attendance" element={<Attendance />} />
+                  <Route path="/profile" element={<Profile />} />
+                </Route>
+                
+                {/* 404 route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
         </SidebarProvider>
       </TooltipProvider>
     </ThemeProvider>
