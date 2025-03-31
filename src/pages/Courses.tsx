@@ -11,6 +11,11 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Course, Enrollment, getCurrentUser, getCourses, getEnrollmentsByUserId, createEnrollment } from "@/utils/localDatabase";
 
+// Define an interface for courses with progress information
+interface CourseWithProgress extends Course {
+  progress: number;
+}
+
 const Courses = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,7 +52,7 @@ const Courses = () => {
   };
   
   // Get my enrolled courses with progress information
-  const getMyEnrolledCourses = () => {
+  const getMyEnrolledCourses = (): CourseWithProgress[] => {
     return allCourses.filter(course => 
       myEnrollments.some(enrollment => enrollment.courseId === course.id)
     ).map(course => {

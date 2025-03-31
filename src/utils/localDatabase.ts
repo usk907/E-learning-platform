@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 // Define types
@@ -13,6 +12,7 @@ export interface Course {
   rating: number;
   category: string;
   createdAt: string;
+  progress?: number; // Added progress as an optional property for UI rendering
 }
 
 export interface Enrollment {

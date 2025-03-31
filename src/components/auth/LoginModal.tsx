@@ -56,6 +56,21 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     onClose();
   };
 
+  const handleGoogleLogin = () => {
+    // For now, just create a basic user with Google domain
+    const googleEmail = `user${Math.floor(Math.random() * 1000)}@gmail.com`;
+    const googleName = `Google User ${Math.floor(Math.random() * 1000)}`;
+    
+    login(googleEmail, googleName);
+    
+    toast({
+      title: "Google Login Successful",
+      description: "You have been logged in with Google successfully",
+    });
+    
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -124,7 +139,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
           </div>
         </div>
         
-        <GoogleLoginButton />
+        <GoogleLoginButton onClick={handleGoogleLogin} />
         
         <div className="text-center text-sm">
           {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
