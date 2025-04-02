@@ -1,43 +1,48 @@
 
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 const MainLayout = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   
-  // Simulating auth check - this would normally check a token in localStorage or a context
   useEffect(() => {
-    // For demo purposes, we'll consider the user not authenticated
-    // In a real app, this would check if the user is logged in
-    
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to access this section. For the demo, we'll pretend you're authenticated.",
-        variant: "destructive",
-      });
+    // Simulate checking authentication
+    const timer = setTimeout(() => {
+      setIsLoading(false);
       
-      // For demo purposes, we'll set authenticated to true after showing the message
-      setTimeout(() => {
-        setIsAuthenticated(true);
-      }, 1000);
-    }
-  }, []);
+      if (!isAuthenticated) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to access this section.",
+          variant: "destructive",
+        });
+      }
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, toast]);
   
-  if (!isAuthenticated) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold">Checking authentication...</h2>
+          <h2 className="text-xl font-semibold">Loading...</h2>
           <p className="text-muted-foreground">Please wait while we verify your credentials</p>
         </div>
       </div>
     );
+  }
+  
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
   }
   
   return (
